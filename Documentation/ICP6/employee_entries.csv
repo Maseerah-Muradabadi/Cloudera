@@ -1,7 +1,0 @@
-employeeno,department,deptno,ename,years_with_company,jobtitle,hiredate,salary,manager
-1,Engineering,11,Stevens,1,Engineer,12/17/80,2300,Jim
-2,Engineering,11,Jones,2,Engineer,12/17/93,2300,Jim
-2,Engineering,11,Samir,2,Engineer,12/17/93,1900,Jim
-3,Marketing,21,Smith,3,Clerk,03/09/00,760,Sally
-4,Sales,31,Howard,1,Clerk,04/19/99,500,Sally
-5,Engineering,11,Gonzales,2,Engineer,06/19/07,1200,Jim
