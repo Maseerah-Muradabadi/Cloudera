@@ -1,0 +1,56 @@
+import java.io.{File, PrintWriter}
+//import com.sun.java.util.jar.pack.Package.File
+//import org.apache.spark.sql.SparkSession
+import org.apache.spark.streaming.Seconds
+import org.apache.spark.{SparkConf, SparkContext}
+object files {
+
+  def main(args: Array[String]) {
+
+    System.setProperty("hadoop.home.dir", "C:\\Winutils");
+
+    val conf = new SparkConf().setAppName("files").setMaster("local[*]")
+    // Create Spark Context.
+    val sc = new SparkContext(conf)
+    val input=sc.textFile(path="lorem.txt.txt")
+    val word = input.map(_.split(" "))
+    println(word)
+
+    import scala.io.Source
+
+    val source = Source.fromFile("lorem.txt.txt")
+      //println(source)
+    val lines=source.getLines().toList
+
+    var a=1
+    while(a<=30)
+      {
+        val listlen=lines.length
+        println(lines.length)
+
+        val RandomGen=scala.util.Random
+        val listnumber=RandomGen.nextInt(listlen)
+        println(listnumber)
+        val fileWriter= new PrintWriter(new File("C:\\Users\\vasim\\Desktop\\Cloudera\\Documentation\\ICP 11\\Output\\log" + a +".txt"))
+
+        for(x <- listnumber to listlen-1)
+          {
+            fileWriter.write(lines(x))
+
+          }
+        fileWriter.close()
+
+
+
+
+        Thread.sleep(5000)
+        a+=1
+
+
+
+      }
+
+
+  }
+}
+
