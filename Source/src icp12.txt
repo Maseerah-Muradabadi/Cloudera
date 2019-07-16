@@ -1,0 +1,61 @@
+import org.apache.spark.sql.SparkSession
+import org.graphframes.GraphFrame
+import org.apache.spark.sql.functions.max
+import org.apache.spark.sql.functions.min
+object SparkGraphFrame {
+  def main(args: Array[String]) {
+    System.setProperty("hadoop.home.dir", "C:\\winutils")
+    val spark = SparkSession
+      .builder()
+      .appName("Spark SQL basic example")
+      .config("spark.master", "local")
+      .getOrCreate()
+
+      //import csv and create graph from the data
+    val df = spark.read.option("header", "True").csv("C:\\Users\\vasim\\Desktop\\Cloudera\\Documentation\\ICP12\\Datasets\\trip_data.csv")
+    // Save data to file
+    df.show()
+
+    val allvertices=df.select("Start Terminal","End Terminal").toDF("id","name")
+    val alledges=df.select("Start Terminal","End Terminal").toDF("src","dst")
+    val distinctvertices=allvertices.distinct()
+    val distinctedges=alledges.distinct()
+    val duplicatevertices=allvertices.except(distinctvertices).show()
+    val duplicateedges=alledges.except(distinctedges).show()
+
+
+    val g = GraphFrame(distinctvertices,distinctedges)
+    g.vertices.show()
+    g.edges.show()
+
+
+    //Concat two columns
+    df.createOrReplaceTempView("test")
+    spark.sql(" SELECT `Trip ID`,`End Terminal`, CONCAT(`Trip ID`, `End Terminal`) AS ConcatInOne From test" ).show()
+
+    //Name Columns
+    val ren = df.selectExpr("`Trip ID` as ID", "`Duration` as Dur","`Start Date` as ScheduledOn","`Start Station` as SS","`Start Terminal` as ST","`End Date` as ED","`End Station` as ES","`End Terminal` as ET","`Bike #` as B","`Subscriber Type` as Sty","`Zip Code` as ZC")
+    ren.show()
+
+    //Displaying Vertex-in and out degrees
+    val i=g.inDegrees.show()
+    val o=g.outDegrees.show()
+
+    val motif=g.find("(50)-[]->(70);" +
+      "(31)-[]->(27)")
+    motif.show()
+
+    //Bonus 1
+
+    val deg=g.degrees.show()
+
+    //Bonus 2
+    //val c=df.agg(max("End Terminal"))
+
+    //Bonus 3
+    //val s=df.select("End Terminal","End Station").count().agg(min(count("End Terminal")))
+
+
+
+  }
+}
