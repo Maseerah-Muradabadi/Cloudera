@@ -1,0 +1,52 @@
+import org.apache.spark.sql.SparkSession
+import org.graphframes.GraphFrame
+import org.apache.spark.sql.functions._
+
+
+object SparkGraphFrame {
+  def main(args: Array[String]) {
+    System.setProperty("hadoop.home.dir", "C:\\winutils")
+    val spark = SparkSession
+      .builder()
+      .appName("Spark SQL basic example")
+      .config("spark.master", "local")
+      .getOrCreate()
+
+    //import csv and create graph from the data
+    val df = spark.read.option("header", "True").csv("C:\\Users\\vasim\\Desktop\\Cloudera\\Documentation\\ICP12\\Datasets\\trip_data.csv")
+
+    //creating start and end vertices as start terminal and end terminal
+    val newstartvertices=df.select("Start Terminal","Start Station").toDF("id","name")
+    val newendvertices=df.select("End Terminal","End Station").toDF("id","name")
+    val endtoendvertices=newstartvertices.union(newendvertices)
+    val alledges=df.select("Start Station","End Station").toDF("src","dst")
+    val gh=GraphFrame(endtoendvertices,alledges.dropDuplicates())
+
+    //triangle count
+    //val triangleResult = gh.triangleCount.run()
+      //triangleResult.dropDuplicates().show()
+
+
+    //shortest path
+    val shortest=gh.shortestPaths.landmarks(Seq("50","82")).run()
+    shortest.show()
+
+
+    // Page Rank
+    val pageRankResult = gh.pageRank.resetProbability(.15).maxIter(2).run()
+    pageRankResult.vertices.dropDuplicates.sort(desc("pagerank")).show
+
+    // Save to file
+    //gh.vertices.write.csv("./output/vertices")
+    //gh.edges.write.csv("./output/edges")
+	
+
+    // BFS
+    val bfsResult = gh.bfs.fromExpr("name == 'Market at 10th'").toExpr("name == 'Broadway St at Battery St'").run
+    bfsResult.show()
+
+   
+
+
+  }
+}
